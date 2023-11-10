@@ -3,7 +3,7 @@
 #include <math.h>
 
 //CAMBIAR DESPUES A 512
-#define N 2
+#define N 512
 
 float Mat[N][N];
 float MatDD[N][N];
@@ -14,7 +14,7 @@ float V4[N];
 
 void InitData(){
 	int i,j;
-	srand(8824553);
+	srand(4422543);
 	for( i = 0; i < N; i++ )
 		 for( j = 0; j < N; j++ ){
 			  Mat[i][j]=(((i*j)%3)?-1:1)*(100.0*(rand()/(1.0*RAND_MAX)));
@@ -34,7 +34,7 @@ void InitData(){
 
 //1
 void PrintVect( float Vect[N], int from, int numel ){
-	for (int i = from; i < from + numel; i++){
+	for (int i = from; i <= numel; i++){
 		printf("%f ", Vect[i]);
 	}
 	printf("\n");
@@ -42,7 +42,7 @@ void PrintVect( float Vect[N], int from, int numel ){
 
 //2
 void PrintRow( float mat[N][N], int row, int from, int numel ){
-	for (int j=from;j < numel - from; j++){
+	for (int j=from;j <= numel; j++){
 		printf("%f ", mat[row][j]);
 	}
 	printf("\n");
@@ -50,9 +50,9 @@ void PrintRow( float mat[N][N], int row, int from, int numel ){
 
 //3
 void MultEscalar( float vect[N], float vectres[N], float alfa ){
-	for (int i=0;i <= sizeof(vect[N]); i++){
+	for (int i=0;i < N; i++){
 	       vectres[i] = alfa * vect[i];
-	       printf("%f ", vectres[i]);	       
+	       //printf("%f ", vectres[i]);	       
 	}
 	printf("\n");
 }
@@ -78,7 +78,7 @@ float Magnitude( float vect[N] ){
                 res += suma;
         }
         float magnitut = sqrt(res);
-        printf("%f ", magnitut);
+        //printf("%f ", magnitut);
         return magnitut;
 }                                                                                              
 //6
@@ -108,15 +108,15 @@ float Infininorm( float M[N][N] ){
 	for (int j=0; j < N; j++){
 		float res = 0.0;
 		for (int i=0; i < N; i++){
-			res += M[j][i];
+			res +=  fabs(M[j][i]);
 		}
 		if (res > max) {
-			printf("res: %f, max: %f ", res, max);	
+			//printf("res: %f, max: %f ", res, max);	
 			max = res; 
 		}
 	}
 	printf("%f  ", max);
-		
+	return max;	
 }
 
 //9
@@ -125,13 +125,14 @@ float Onenorm( float M[N][N] ){
 	for (int i=0; i < N; i++){
 		float res = 0.0;
 		for (int j=0; j < N; j++){
-			res += M[j][i];
+			res += fabs(M[j][i]);
 		}
 		if (res > max) {
 			max = res;
 		}
 	}
 	printf("%f ", max);
+	return max;
 }
 
 //10
@@ -145,44 +146,90 @@ float NormFrobenius( float M[N][N] ){
 	}
 	res = sqrt(sumatori);
 	printf("%f ", res);
+	return res;
 }	
 
 //11
 
 int DiagonalDom( float M[N][N] ){
 	for ( int i=0; i < N; i++ ){			
-		float max = M[0][0];
+		float max = abs(M[i][i]);
 		float res = 0.0;
 		for ( int j=0; j < N; j ++ ){
 			if ( j != i ) {
-				res += M[i][j];
+				res += abs(M[i][j]);
 			}
 		}
 		if (res > max) {
+			printf("%d", 0);
 			return 0;
 		}	
 	}
+	printf("%d", 1);
 	return 1;
 }
 		
+//12
 
+int Jacobi( float M[N][N], float vect[N], float vectres[N], unsigned iter ){
+	int DD = DiagonalDom(M);
+	if (DD) {
+		for (unsigned int k = 0; k < iter; k++){
+			for (int i = 0; i < N; i++){
+				float sum = 0.0;
+				for (int j = 0; j < N; j++){
+					if (i != j){
+						sum += M[i][j] * vect[j];
+					}
+				}
+			vectres[i] = (vect[i] - sum) / M[i][i];
+		}	
+		for (int i = 0; i < N; i++){
+			vect[i] = vectres[i];
+		}
+		return 1;
+	}
+	} else {
+		return 0;
+	}
+}
+
+//12
+/*
+int Jacobi( float M[N][N] , float vect[N], float vectres[N], unsigned int iter ){
+	if (!DiagonalDom(M)){
+		return 0;
+	}				            
+	float temp[N];
+	unsigned int k;
+	for (k=0; k< iter;k++){
+		for (int i = 0; i < N; i++) {
+			temp[i]=vect[i];
+			for (int j=0; j < N; j++) {
+				if (j!=i){
+					temp[i]=M[i][j]*vectres[j];
+																										                                    }
+			}
+			temp[i] /= M[i][i];
+		}
+		for (int i=0; i<N; i++){
+			vectres[i]=temp[i];
+		}
+
+		return 1;
+	}  
+}
+*/
 int main() {
 	InitData();
-	//PrintVect(V1, 0, 5);
-	//PrintVect(V3, 0, 5);
-	PrintRow(Mat, 0, 0, 2);
-	PrintRow(Mat, 1, 0, 2);
-	printf("\n");
-	//PrintRow(Mat, 2, 0, 5);
-	//PrintRow(Mat, 3, 0, 5);
- 	//PrintRow(Mat, 4, 0, 5);
-	//PrintRow( Mat, 3, 0, 3);
-	//MultEscalar(V1, V2, 2);
-	//Scalar(V1,V3);
-	//Magnitude(V1);
-	//printf("%d \n", Ortogonal(V1,V2));
-	//Projection(V1,V3,V2);
-	//Infininorm(Mat);
-	//Onenorm(Mat);
-	NormFrobenius(Mat);
+
+//	PrintRow(MatDD, 0, 0, 9);
+//	PrintRow(MatDD, 100, 95, 104);
+
+	//Jacobi(MatDD,V3,V4,1);
+	//PrintVect(V4,0,9);
+	//Jacobi(MatDD,V3,V4,1000);
+	//PrintVect(V4,0,9);
+
 }
+
